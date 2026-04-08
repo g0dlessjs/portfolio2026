@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   ArrowRight,
   ArrowLeft,
   ArrowUpRight,
   Github,
   Globe,
-  Plus,
-  Minus,
   Briefcase,
   Calendar,
   Layers,
@@ -16,7 +14,7 @@ import {
 import { Button } from "../ui/Button";
 import { Skeleton } from "../ui/Skeleton";
 import { useLanguage } from "../../context/LanguageContext";
-import { fadeInUp, staggerContainer, staggerItem } from "../../motion/variants";
+import { fadeInUp, staggerItem } from "../../motion/variants";
 
 export const ProjectsSection: React.FC<{
   onProjectClick: (id: number) => void;

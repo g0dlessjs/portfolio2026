@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion, useMotionValue, animate } from "framer-motion";
 import { Quote, ChevronLeft, ChevronRight, MessageSquareCode } from "lucide-react";
 import { useLanguage } from "../../context/LanguageContext";
@@ -25,13 +25,13 @@ export const Testimonials: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, [cardWidth]);
 
-  const next = () => {
+  const next = useCallback(() => {
     setIndex((prev) => (prev + 1) % testimonials.length);
-  };
+  }, [testimonials.length]);
 
-  const prev = () => {
+  const prev = useCallback(() => {
     setIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
-  };
+  }, [testimonials.length]);
 
   useEffect(() => {
     const mobileOffset = (window.innerWidth - 280) / 2;
@@ -47,7 +47,7 @@ export const Testimonials: React.FC = () => {
   useEffect(() => {
     const timer = setInterval(next, 8000);
     return () => clearInterval(timer);
-  }, [testimonials.length]);
+  }, [testimonials.length, next]);
 
   return (
     <section id="testimonials" className="py-32 relative overflow-hidden bg-background">

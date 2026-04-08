@@ -21,7 +21,7 @@ import { ThemeValue } from "./types/index";
 type ViewState = "home" | "all-projects" | "project-detail";
 
 const AppContent: React.FC = () => {
-    const { t, language } = useLanguage();
+    const { language } = useLanguage();
     const { sections } = portfolioConfig;
 
   // SEO Page Title

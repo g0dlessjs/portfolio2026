@@ -67,7 +67,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       if (el) observer.observe(el);
     });
     return () => observer.disconnect();
-  }, [currentView]);
+  }, [currentView, sections]);
 
   // Close dropdowns on outside click
   useEffect(() => {
