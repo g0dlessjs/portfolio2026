@@ -81,44 +81,40 @@ const AppContent: React.FC = () => {
   // Navigation Handlers
   const handleNavigate = (sectionId: string) => {
     if (currentView !== "home") {
-      // If we're in another view (projects, project-detail), go back to home first
+      // If we're in another view, go back to home first
       setCurrentView("home");
-      // After home renders, scroll to the section
+      // After home renders, scroll to the section (or top if home)
       setTimeout(() => {
-        const element = document.getElementById(sectionId);
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth" });
+        if (sectionId === "home") {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+          const element = document.getElementById(sectionId);
+          element?.scrollIntoView({ behavior: "smooth" });
         }
       }, 100);
     } else {
-      // Already on home, just scroll to the section
-      const element = document.getElementById(sectionId);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
+      // Already on home
+      if (sectionId === "home") {
+        // Scroll to top (shows the badge, hero content properly)
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        const element = document.getElementById(sectionId);
+        element?.scrollIntoView({ behavior: "smooth" });
       }
     }
   };
-
-  // Fix initial scroll position: scroll to top on first load only
-  useEffect(() => {
-    // Disable browser's automatic scroll restoration
-    if ('scrollRestoration' in history) {
-      history.scrollRestoration = 'manual';
-    }
-
-    // Scroll to top immediately on mount
-    // Use a small timeout to ensure DOM is ready
-    const timer = setTimeout(() => {
-      window.scrollTo(0, 0);
-    }, 50);
-
-    return () => clearTimeout(timer);
-  }, []); // Only run once on mount
 
   const openProject = (id: number) => {
     setSelectedProjectId(id);
     setCurrentView("project-detail");
   };
+
+  // Disable browser scroll restoration to prevent position persistence
+  useEffect(() => {
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+  }, []);
 
   return (
     <main
