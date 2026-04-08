@@ -81,41 +81,39 @@ const AppContent: React.FC = () => {
   // Navigation Handlers
   const handleNavigate = (sectionId: string) => {
     if (currentView !== "home") {
+      // If we're in another view (projects, project-detail), go back to home first
       setCurrentView("home");
+      // After home renders, scroll to the section
       setTimeout(() => {
         const element = document.getElementById(sectionId);
         if (element) {
           element.scrollIntoView({ behavior: "smooth" });
         }
-      }, 100); // Small delay for view transition
+      }, 100);
     } else {
-      // If already on home, just scroll (with manual flag to avoid observer interference)
+      // Already on home, just scroll to the section
       const element = document.getElementById(sectionId);
       if (element) {
-        // Temporarily set isScrolling flag to prevent observer from interfering
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        setTimeout(() => {
-          element.scrollIntoView({ behavior: "smooth" });
-        }, 300);
+        element.scrollIntoView({ behavior: "smooth" });
       }
     }
   };
 
-  // Force scroll to top on initial load and when returning to home
+  // Fix initial scroll position: scroll to top on first load only
   useEffect(() => {
-    // Disable browser's scroll restoration
+    // Disable browser's automatic scroll restoration
     if ('scrollRestoration' in history) {
       history.scrollRestoration = 'manual';
     }
 
-    // Always scroll to top on initial mount
-    window.scrollTo(0, 0);
+    // Scroll to top immediately on mount
+    // Use a small timeout to ensure DOM is ready
+    const timer = setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 50);
 
-    // Also scroll to top when currentView changes to 'home' (e.g., from project detail)
-    if (currentView === 'home') {
-      window.scrollTo({ top: 0, behavior: 'auto' });
-    }
-  }, [currentView]);
+    return () => clearTimeout(timer);
+  }, []); // Only run once on mount
 
   const openProject = (id: number) => {
     setSelectedProjectId(id);
