@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { motion, useMotionValue, animate } from "framer-motion";
+import { motion, useMotionValue, animate, useMotionTemplate, MotionValue } from "framer-motion";
 import { Quote, ChevronLeft, ChevronRight, MessageSquareCode } from "lucide-react";
 import { useLanguage } from "../../context/LanguageContext";
 
@@ -9,12 +9,12 @@ export const Testimonials: React.FC = () => {
   const [index, setIndex] = useState(0);
   const x = useMotionValue(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
 
   // Responsive dimensions
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   const cardWidth = isMobile ? window.innerWidth * 0.85 - 16 : 350; // 85vw - gap on mobile
   const gap = isMobile ? 16 : 24;
-  const cardHeight = isMobile ? 380 : 400;
 
   const next = useCallback(() => {
     setIndex((prev) => (prev + 1) % testimonials.length);
@@ -39,9 +39,24 @@ export const Testimonials: React.FC = () => {
 
   // Auto-advance
   useEffect(() => {
+    if (isDragging.current) return;
     const timer = setInterval(next, 6000);
     return () => clearInterval(timer);
   }, [next]);
+
+  // Update index based on drag position
+  const handleDragStart = () => {
+    isDragging.current = true;
+  };
+
+  const handleDragEnd = () => {
+    isDragging.current = false;
+    const currentX = x.get();
+    const itemWidth = cardWidth + gap;
+    const newIndex = Math.round(-currentX / itemWidth);
+    const clampedIndex = Math.max(0, Math.min(newIndex, testimonials.length - 1));
+    setIndex(clampedIndex);
+  };
 
   // Total width for centering
   const totalWidth = testimonials.length * (cardWidth + gap) - gap;
@@ -124,6 +139,8 @@ export const Testimonials: React.FC = () => {
               left: -((testimonials.length - 1) * (cardWidth + gap)),
               right: 0
             }}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
             className="flex gap-4 md:gap-6"
             style={{
               width: totalWidth,
