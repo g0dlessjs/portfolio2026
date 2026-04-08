@@ -87,14 +87,35 @@ const AppContent: React.FC = () => {
         if (element) {
           element.scrollIntoView({ behavior: "smooth" });
         }
-      }, 50);
+      }, 100); // Small delay for view transition
     } else {
+      // If already on home, just scroll (with manual flag to avoid observer interference)
       const element = document.getElementById(sectionId);
       if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
+        // Temporarily set isScrolling flag to prevent observer from interfering
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: "smooth" });
+        }, 300);
       }
     }
   };
+
+  // Force scroll to top on initial load and when returning to home
+  useEffect(() => {
+    // Disable browser's scroll restoration
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+
+    // Always scroll to top on initial mount
+    window.scrollTo(0, 0);
+
+    // Also scroll to top when currentView changes to 'home' (e.g., from project detail)
+    if (currentView === 'home') {
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }
+  }, [currentView]);
 
   const openProject = (id: number) => {
     setSelectedProjectId(id);
