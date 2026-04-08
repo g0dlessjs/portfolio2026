@@ -24,7 +24,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate }) => {
   return (
     <section
       id="home"
-      className="min-h-screen flex flex-col justify-center relative pt-24 pb-20 overflow-hidden"
+      className="min-h-screen flex flex-col justify-center relative pt-16 pb-20 overflow-hidden"
     >
       {/* Background Glows */}
       <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[150px] pointer-events-none opacity-40" />
