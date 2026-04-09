@@ -1,10 +1,10 @@
-@import "tailwindcss";
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap");
+@import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @theme {
-  --font-sans: "Plus Jakarta Sans", sans-serif;
-  --font-display: "Outfit", sans-serif;
-  --font-mono: "JetBrains Mono", "monospace";
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
+  --font-display: 'Outfit', sans-serif;
+  --font-mono: 'JetBrains Mono', 'monospace';
 
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
@@ -90,7 +90,7 @@
     --secondary-foreground: 240 5.9% 10%;
 
     --muted: 240 4.8% 90%;
-    --muted-foreground: 240 3.8% 46.1%;
+    --muted-foreground: 240 5% 35%; /* Optimizado ratio 4.5:1 WCAG */
 
     --accent: 240 4.8% 95.9%;
     --accent-foreground: 240 5.9% 10%;
@@ -111,7 +111,7 @@
   .dark {
     /* Dark Mode - Deep Space Black & Neon (No Blue) */
     --background: 0 0% 2%; /* #050505 */
-    --foreground: 0 0% 98%;
+    --foreground: 0 0% 100%; /* Optimizado máximo contraste */
 
     --card: 0 0% 3.9%;
     --card-foreground: 0 0% 98%;
@@ -128,7 +128,7 @@
     --secondary-foreground: 0 0% 98%;
 
     --muted: 0 0% 10%;
-    --muted-foreground: 0 0% 63.9%;
+    --muted-foreground: 0 0% 75%; /* Optimizado claro texto segundario */
 
     /* Acid Green Accent */
     --accent: 84 81% 44%;
@@ -171,7 +171,9 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    *,
+    *::before,
+    *::after {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
