@@ -30,6 +30,7 @@
     <meta property="twitter:image" content="https://juangalarce.dev/og-image.jpg" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href="https://juangalarce.dev/" />
+    <link rel="preload" href="/src/main.tsx" as="script" />
 
     <!-- Theme color for mobile browsers -->
     <meta name="theme-color" content="#050505" media="(prefers-color-scheme: dark)" />
@@ -40,5 +41,12 @@
   >
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <style>
+      /* solo lo visible al inicio */
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+    </style>
   </body>
 </html>
