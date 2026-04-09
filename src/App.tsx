@@ -31,6 +31,7 @@ const Contact = lazy(() =>
 import { Footer } from './components/layout/Footer';
 import { SEO } from './components/SEO';
 import { CustomCursor } from './components/ui/CustomCursor';
+import { PageLoader } from './components/ui/PageLoader';
 import { portfolioConfig } from './config/portfolio';
 import { ThemeValue } from './types/index';
 
@@ -142,13 +143,7 @@ const AppContent: React.FC = () => {
         currentView={currentView}
       />
       <div className="flex flex-col w-full transition-all duration-500">
-        <Suspense
-          fallback={
-            <div className="min-h-screen flex items-center justify-center">
-              Loading...
-            </div>
-          }
-        >
+        <Suspense fallback={<PageLoader />}>
           {currentView === 'home' && (
             <>
               {sections.showHero && <Hero onNavigate={handleNavigate} />}
