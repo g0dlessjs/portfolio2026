@@ -1,5 +1,6 @@
-import { Helmet } from "react-helmet-async";
-import { site, personal } from "../config/portfolio";
+import React from 'react';
+import { Helmet } from 'react-helmet-async';
+import { site, personal } from '../config/portfolio';
 
 interface SEOProps {
   title?: string;
@@ -14,7 +15,7 @@ export const SEO: React.FC<SEOProps> = ({
 }) => {
   const fullTitle = title === site.title ? title : `${title} | ${personal.name}`;
   const url = site.siteUrl;
-  const imageUrl = image.startsWith("http") ? image : `${url}${image}`;
+  const imageUrl = image.startsWith('http') ? image : `${url}${image}`;
 
   return (
     <Helmet>

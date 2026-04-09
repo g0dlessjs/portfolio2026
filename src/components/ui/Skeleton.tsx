@@ -1,7 +1,9 @@
+import React from 'react';
+
 export const Skeleton: React.FC<{
   className?: string;
   shimmer?: boolean;
-}> = ({ className = "", shimmer = true }) => (
+}> = ({ className = '', shimmer = true }) => (
   <div
     className={`bg-muted/50 relative overflow-hidden ${className}`}
     role="status"

@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import { motion, useMotionValue, animate, useMotionTemplate, MotionValue } from "framer-motion";
-import { Quote, ChevronLeft, ChevronRight, MessageSquareCode } from "lucide-react";
-import { useLanguage } from "../../context/LanguageContext";
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { motion, useMotionValue, animate, PanInfo, useDragControls } from 'framer-motion';
+import { Quote, ChevronLeft, ChevronRight, MessageSquareCode } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 
 export const Testimonials: React.FC = () => {
   const { t, language } = useLanguage();
@@ -10,32 +10,48 @@ export const Testimonials: React.FC = () => {
   const x = useMotionValue(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
+  const dragControls = useDragControls();
 
   // Responsive dimensions
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-  const cardWidth = isMobile ? window.innerWidth * 0.85 - 16 : 350; // 85vw - gap on mobile
-  const gap = isMobile ? 16 : 24;
+  const [dimensions, setDimensions] = useState({
+    cardWidth: 280,
+    gap: 24,
+    isMobile: false,
+  });
+
+  useEffect(() => {
+    const updateDimensions = () => {
+      const isMobile = window.innerWidth < 768;
+      const cardWidth = isMobile ? window.innerWidth * 0.85 : 350;
+      const gap = isMobile ? 16 : 24;
+      setDimensions({ cardWidth, gap, isMobile });
+    };
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+    return () => window.removeEventListener('resize', updateDimensions);
+  }, []);
 
   const next = useCallback(() => {
-    setIndex((prev) => (prev + 1) % testimonials.length);
+    setIndex(prev => (prev + 1) % testimonials.length);
   }, [testimonials.length]);
 
   const prev = useCallback(() => {
-    setIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+    setIndex(prev => (prev - 1 + testimonials.length) % testimonials.length);
   }, [testimonials.length]);
 
-  // Animate carousel position
+  // Animate to index position
   useEffect(() => {
+    const { cardWidth, gap } = dimensions;
     const maxOffset = -(testimonials.length - 1) * (cardWidth + gap);
     const targetX = -index * (cardWidth + gap);
     const constrainedX = Math.min(0, Math.max(targetX, maxOffset));
     const controls = animate(x, constrainedX, {
-      type: "spring",
+      type: 'spring',
       stiffness: 300,
       damping: 28,
     });
     return controls.stop;
-  }, [index, x, cardWidth, gap, testimonials.length]);
+  }, [index, x, dimensions]);
 
   // Auto-advance
   useEffect(() => {
@@ -44,25 +60,44 @@ export const Testimonials: React.FC = () => {
     return () => clearInterval(timer);
   }, [next]);
 
-  // Update index based on drag position
-  const handleDragStart = () => {
-    isDragging.current = true;
-  };
-
-  const handleDragEnd = () => {
+  // Sync index on drag end
+  const handleDragEnd = (_event: any, info: PanInfo) => {
     isDragging.current = false;
-    const currentX = x.get();
+    const { cardWidth, gap } = dimensions;
+    const offset = info.offset.x;
     const itemWidth = cardWidth + gap;
-    const newIndex = Math.round(-currentX / itemWidth);
+    const newIndex = Math.round(-offset / itemWidth);
     const clampedIndex = Math.max(0, Math.min(newIndex, testimonials.length - 1));
     setIndex(clampedIndex);
   };
 
-  // Total width for centering
+  const handleDragStart = () => {
+    isDragging.current = true;
+  };
+
+  const { cardWidth, gap, isMobile } = dimensions;
   const totalWidth = testimonials.length * (cardWidth + gap) - gap;
 
+  // Calculate centered padding for active card on mobile
+  const getCenteredPadding = useCallback(() => {
+    if (!isMobile) return 'max(1rem, calc((100vw - ' + totalWidth + 'px) / 2))';
+    // On mobile, center the active card in the viewport
+    const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 375;
+    const centeredOffset = (viewportWidth - cardWidth) / 2;
+    return centeredOffset + 'px';
+  }, [cardWidth, totalWidth, isMobile]);
+
+  const [paddingLeft, setPaddingLeft] = useState(getCenteredPadding());
+
+  useEffect(() => {
+    setPaddingLeft(getCenteredPadding());
+  }, [getCenteredPadding, index]);
+
   return (
-    <section id="testimonials" className="py-16 md:py-24 relative overflow-hidden bg-background">
+    <section
+      id="testimonials"
+      className="py-16 md:py-24 relative overflow-hidden bg-background"
+    >
       {/* Background Glows */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[140px] pointer-events-none translate-x-1/2 -translate-y-1/4" />
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-[120px] pointer-events-none -translate-x-1/2 translate-y-1/4" />
@@ -101,14 +136,20 @@ export const Testimonials: React.FC = () => {
             className="pointer-events-auto w-12 h-12 rounded-full border border-border bg-background/90 backdrop-blur-xl flex items-center justify-center text-foreground hover:text-primary hover:border-primary transition-all duration-300 shadow-lg hover:scale-110 active:scale-95 group"
             aria-label="Testimonio anterior"
           >
-            <ChevronLeft size={24} className="group-hover:-translate-x-0.5 transition-transform" />
+            <ChevronLeft
+              size={24}
+              className="group-hover:-translate-x-0.5 transition-transform"
+            />
           </button>
           <button
             onClick={next}
             className="pointer-events-auto w-12 h-12 rounded-full border border-border bg-background/90 backdrop-blur-xl flex items-center justify-center text-foreground hover:text-primary hover:border-primary transition-all duration-300 shadow-lg hover:scale-110 active:scale-95 group"
             aria-label="Siguiente testimonio"
           >
-            <ChevronRight size={24} className="group-hover:translate-x-0.5 transition-transform" />
+            <ChevronRight
+              size={24}
+              className="group-hover:translate-x-0.5 transition-transform"
+            />
           </button>
         </div>
 
@@ -133,19 +174,20 @@ export const Testimonials: React.FC = () => {
         {/* Carousel Track - Centered */}
         <div className="overflow-hidden">
           <motion.div
-            style={{ x }}
             drag="x"
+            dragControls={dragControls}
             dragConstraints={{
               left: -((testimonials.length - 1) * (cardWidth + gap)),
-              right: 0
+              right: 0,
             }}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
-            className="flex gap-4 md:gap-6"
+            className="flex gap-4 md:gap-6 cursor-grab active:cursor-grabbing"
             style={{
+              x,
               width: totalWidth,
               margin: '0 auto',
-              paddingLeft: 'max(1rem, calc((100vw - ' + totalWidth + 'px) / 2))'
+              paddingLeft: paddingLeft,
             }}
           >
             {testimonials.map((test: any, i: number) => (
@@ -153,21 +195,31 @@ export const Testimonials: React.FC = () => {
                 key={test.id}
                 animate={{
                   scale: i === index ? 1 : 0.9,
-                  opacity: i === index ? 1 : 0.45
+                  opacity: i === index ? 1 : 0.45,
                 }}
                 transition={{ duration: 0.4 }}
-                className="shrink-0 cursor-pointer"
+                className="shrink-0"
                 style={{ width: cardWidth }}
                 onClick={() => setIndex(i)}
               >
-                <div className={`bg-card/40 backdrop-blur-xl border ${i === index ? 'border-primary/40 shadow-2xl shadow-primary/10' : 'border-border/50'} rounded-3xl md:rounded-4xl p-5 md:p-10 relative overflow-hidden group h-full flex flex-col justify-between transition-all duration-500`}>
+                <div
+                  className={`bg-card/40 backdrop-blur-xl border ${i === index ? 'border-primary/40 shadow-2xl shadow-primary/10' : 'border-border/50'} rounded-3xl md:rounded-4xl p-5 md:p-10 relative overflow-hidden group h-full flex flex-col justify-between transition-all duration-500`}
+                >
                   {/* Quote icon */}
-                  <Quote size={50} className={`absolute -top-3 -left-3 ${i === index ? 'text-primary/10' : 'text-primary/5'} -rotate-12 transition-all duration-700 hidden md:block`} />
-                  <Quote size={40} className={`absolute -top-2 -left-2 ${i === index ? 'text-primary/15' : 'text-primary/5'} -rotate-12 transition-all duration-700 md:hidden`} />
+                  <Quote
+                    size={50}
+                    className={`absolute -top-3 -left-3 ${i === index ? 'text-primary/10' : 'text-primary/5'} -rotate-12 transition-all duration-700 hidden md:block`}
+                  />
+                  <Quote
+                    size={40}
+                    className={`absolute -top-2 -left-2 ${i === index ? 'text-primary/15' : 'text-primary/5'} -rotate-12 transition-all duration-700 md:hidden`}
+                  />
 
                   {/* Content */}
                   <div className="relative z-10 flex-1 flex items-center">
-                    <p className={`${i === index ? 'text-foreground' : 'text-muted-foreground/50'} text-sm md:text-xl leading-relaxed italic`}>
+                    <p
+                      className={`${i === index ? 'text-foreground' : 'text-muted-foreground/50'} text-sm md:text-xl leading-relaxed italic`}
+                    >
                       "{test.content}"
                     </p>
                   </div>
@@ -176,7 +228,7 @@ export const Testimonials: React.FC = () => {
                   <div className="flex items-center gap-3 md:gap-4 relative z-10 pt-4 md:pt-5 border-t border-white/10">
                     <div className="relative shrink-0">
                       {i === index && (
-                        <div className="absolute -inset-2 bg-primary/20 rounded-full blur animate-pulse md:block hidden" />
+                        <div className="absolute -inset-2 bg-primary/20 rounded-full blur animate-pulse hidden md:block" />
                       )}
                       {i === index && (
                         <div className="absolute -inset-1.5 bg-primary/30 rounded-full blur animate-pulse md:hidden block" />
@@ -211,8 +263,8 @@ export const Testimonials: React.FC = () => {
             onClick={() => setIndex(i)}
             className={`h-2 rounded-full transition-all duration-300 ${
               i === index
-                ? "w-8 bg-primary"
-                : "w-2 bg-primary/20 hover:bg-primary/40 hover:w-3"
+                ? 'w-8 bg-primary'
+                : 'w-2 bg-primary/20 hover:bg-primary/40 hover:w-3'
             }`}
             aria-label={`Ver testimonio ${i + 1}`}
           />
